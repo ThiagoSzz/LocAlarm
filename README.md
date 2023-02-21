@@ -16,7 +16,7 @@ A mobile application for an geographical gps-based alarm that will alert you as 
 
 Protótipo de interface v0.1
 <br>
-![image](https://user-images.githubusercontent.com/49589136/220385019-27a92963-b126-45f1-a831-bef7a682b975.png)
+![](https://user-images.githubusercontent.com/49589136/220385019-27a92963-b126-45f1-a831-bef7a682b975.png | width=100)
 
 Envio de LOGs
 <br>
