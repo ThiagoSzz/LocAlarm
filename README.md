@@ -16,7 +16,7 @@ A mobile application for an geographical gps-based alarm that will alert you as 
 
 Protótipo de interface v0.1
 <br>
-![](https://user-images.githubusercontent.com/49589136/220385019-27a92963-b126-45f1-a831-bef7a682b975.png | width=100)
+![image](https://user-images.githubusercontent.com/49589136/220385019-27a92963-b126-45f1-a831-bef7a682b975.png)
 
 Envio de LOGs
 <br>
@@ -27,13 +27,3 @@ Envio de LOGs
   cd localarm
   npm start
 ```
-    
-## Inspiração
-
-Fonte: Midjourney AI
-
-![image](https://user-images.githubusercontent.com/49589136/220387554-a8ec4694-690c-41ca-aee3-386623766d61.png)
-
-![image](https://user-images.githubusercontent.com/49589136/220387604-556e752b-4986-410b-8ec0-759d6cf5e131.png)
-
-
