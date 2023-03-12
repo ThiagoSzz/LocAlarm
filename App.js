@@ -1,196 +1,178 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Button, TouchableOpacity } from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import { Ionicons } from "@expo/vector-icons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer } from "@react-navigation/native";
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import NewAlarmScreen from './NewAlarm';
+import SettingsScreen from './Settings';
 
-const activationRadiusOptions = [10, 50, 100, 200, 500, 1000];
+const HomeScreen = ({ navigation }) => {
+	const [favorite, setFavorite] = useState([
+		{
+			id: 1,
+			name: 'Campus do Vale',
+			description: 'Endereço 1',
+			enabled: true,
+		},
+		{
+			id: 2,
+			name: 'Centro',
+			description: 'Endereço 2',
+			enabled: false,
+		},
+		{
+			id: 3,
+			name: 'Casa',
+			description: 'Endereço 3',
+			enabled: true,
+		},
+		{
+			id: 4,
+			name: 'Mercado',
+			description: 'Endereço 4',
+			enabled: true,
+		},
+		{
+			id: 5,
+			name: 'Aeroporto',
+			description: 'Endereço 5',
+			enabled: true,
+		},
+	]);	  
 
-const RadiusSelector = ({ activationRadius, onRadiusChange }) => {
-	const [currentIndex, setCurrentIndex] = useState(
-		activationRadiusOptions.indexOf(activationRadius)
-	);
+	const [historical, setHistorical] = useState([
+		{
+			name: 'Mercearia',
+			description: 'Endereço 6',
+			createdAt: new Date()
+		},
+		{
+			name: 'Campus Saúde',
+			description: 'Endereço 7',
+			createdAt: new Date()
+		},
+	]);
 
-	const minusButton = () => {
-		if (currentIndex > 0) {
-			setCurrentIndex(currentIndex - 1);
-			onRadiusChange(activationRadiusOptions[currentIndex - 1]);
-		}
-	};
-
-	const plusButton = () => {
-		if (currentIndex < activationRadiusOptions.length - 1) {
-			setCurrentIndex(currentIndex + 1);
-			onRadiusChange(activationRadiusOptions[currentIndex + 1]);
-		}
-	};
-
-	return (
-		<View	style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderWidth: 1,
-            borderColor: "gray",
-            borderRadius: 30,
-            padding: 5,
-            marginLeft: 10,
-            marginRight: 10,
-            width: 200,
-          }}>
-			<TouchableOpacity onPress={minusButton}>
-				<Text style={{
-						    fontSize: 20,
-                color: "black",
-                marginHorizontal: 10,
-					    }}>
-					-
-				</Text>
-			</TouchableOpacity>
-			<Text	style={{
-              fontSize: 15,
-              flex: 1,
-              textAlign: "center",
-              paddingVertical: 5,
-				    }}>
-				{activationRadiusOptions[currentIndex]} metros
-			</Text>
-			<TouchableOpacity onPress={plusButton}>
-				<Text	style={{
-                fontSize: 20,
-                color: "black",
-                marginHorizontal: 10,
-              }}>
-					+
-				</Text>
-			</TouchableOpacity>
-		</View>
-	);
-};
-
-function NewAlarmScreen() {
-	const [tag, setTag] = useState("");
-	const [location, setLocation] = useState("");
-	const [region, setRegion] = useState(null);
-	const [activationRadius, setActivationRadius] = useState(50);
-
-	const submitButton = () => {
-		console.log(
-			`
-       Novo Alarme
-       ===========
-       Etiqueta: ${tag}
-       Localização: ${location}
-       Latitude: ${region?.latitude ?? 0}
-       Longitude: ${region?.longitude ?? 0}
-       Raio de ativação: ${activationRadius}
-      `
+	const toggleAlarm = (id) => {
+		setFavorite((prevState) =>
+			prevState.map((item) =>
+				item.id === id ? { ...item, enabled: !item.enabled } : item
+			)
 		);
 	};
 
-	const getMapPosition = (event) => {
-		const { coordinate } = event.nativeEvent;
-		setRegion(coordinate);
-		setLocation(
-			`${event.nativeEvent.coordinate.latitude}, ${event.nativeEvent.coordinate.longitude}`
+	const showItemFavorite = ({ item }) => {
+		return (
+			<View style={styles.listItem}>
+				<View style={{ flex: 1 }}>
+				<Text style={styles.alarmName}>{item.name}</Text>
+				<Text style={styles.alarmDescription}>{item.description}</Text>
+				</View>
+				<TouchableOpacity onPress={() => navigation.navigate('AllarmSettings')}>
+					<FontAwesome name="cog" size={30} color="#888888" style={{ marginRight: 15 }} />
+				</TouchableOpacity>
+				<TouchableOpacity onPress={() => toggleAlarm(item.id)}>
+					{item.enabled ? (
+						<FontAwesome name="toggle-on" size={40} color="#4CD964" />
+					) : (
+						<FontAwesome name="toggle-off" size={40} color="#C7C7CC" />
+					)}
+				</TouchableOpacity>
+			</View>
+		);
+	};
+
+	const showItemHistorical = ({ item }) => {
+		return (
+		<View style={styles.listItem}>
+			<View style={{ flex: 1 }}>
+			<Text style={styles.alarmName}>{item.name}</Text>
+			<Text style={styles.alarmDescription}>Criado em {item.createdAt.toLocaleDateString()} às {item.createdAt.toLocaleTimeString()}</Text>
+			</View>
+			<TouchableOpacity>
+				<FontAwesome name="star" size={32} color="#FFD700" style={{ marginRight: 15 }} />
+			</TouchableOpacity>
+		</View>
 		);
 	};
 
 	return (
-		<View style={{ flex: 1 }}>
-			<View style={{ flex: 1 }}>
-				<MapView style={{ flex: 1 }}
-                 region={region}
-                 onPress={getMapPosition}>
-					{region && <Marker coordinate={region}/>}
-				</MapView>
-			</View>
-			<View style={{ flex: 1 }}>
-				<TextInput  style={{
-                      height: 40,
-                      borderColor: "gray",
-                      borderWidth: 1,
-                      marginTop: 10,
-                      marginLeft: 10,
-                      marginRight: 10,
-                      borderRadius: 20,
-                      paddingLeft: 15,
-                    }}
-                    onChangeText={(text) => setTag(text)}
-                    value={tag}
-                    placeholder="Etiqueta"/>
-				<TextInput  style={{
-                      height: 40,
-                      borderColor: "gray",
-                      borderWidth: 1,
-                      marginTop: 10,
-                      marginLeft: 10,
-                      marginRight: 10,
-                      borderRadius: 20,
-                      paddingLeft: 15,
-                    }}
-                    onChangeText={(text) => setLocation(text)}
-                    value={location}
-                    placeholder="Localização"/>
-				<View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginLeft: 15,
-                marginTop: 10,
-              }}>
-					<Text>Raio de Ativação</Text>
-					<RadiusSelector	activationRadius={activationRadius}
-						              onRadiusChange={setActivationRadius}/>
-				</View>
-				<View style={{
-                flex: 1,
-                justifyContent: "flex-end",
-                marginBottom: 60
-              }}>
-					<Button title="Concluído"
-                  onPress={submitButton}/>
+		<View style={{ flex: 1, backgroundColor: '#f0f0f0' }}>
+			<View style={styles.header}>
+				<Text style={{ fontSize: 24, color: 'black', fontWeight: 'bold' }}>LocAlarm</Text>
+				
+				<View style={{ flexDirection: 'row' }}>
+					<TouchableOpacity onPress={() => navigation.navigate('NewAlarm')}>
+						<FontAwesome name="plus" size={25} style={{ color: 'black',	marginLeft: 25 }} />
+					</TouchableOpacity>
+					<TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+						<FontAwesome name="cog" size={25} style={{ color: 'black',	marginLeft: 25 }} />
+					</TouchableOpacity>
 				</View>
 			</View>
+
+			<View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
+				<Text style={{ fontSize: 18, fontWeight: 'bold' }}>Favoritos</Text>
+			</View>
+			<FlatList style={{ paddingHorizontal: 15, height: 250 }} data={favorite} keyExtractor={(item) => item.id.toString()} renderItem={showItemFavorite} />
+			
+			<View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
+				<Text style={{ fontSize: 18, fontWeight: 'bold' }}>Histórico</Text>
+			</View>
+			<FlatList style={{ paddingHorizontal: 15 }}	data={historical}	renderItem={showItemHistorical} />
 		</View>
 	);
 }
 
-function SettingsScreen() {
+const styles = StyleSheet.create({
+	header: {
+		flexDirection: 'row',
+		backgroundColor: 'white',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		paddingVertical: 10,
+		paddingHorizontal: 15,
+	},
+	listItem: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		backgroundColor: 'white',
+		padding: 15,
+		borderRadius: 5,
+		marginBottom: 10,
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.25,
+		shadowRadius: 2,
+		elevation: 2,
+	},
+	alarmName: {
+		fontSize: 18,
+		fontWeight: 'bold',
+		marginBottom: 5,
+	},
+	alarmDescription: {
+		color: '#8E8E93',
+		fontStyle: 'italic',
+		fontSize: 14,
+		marginBottom: 5,
+	},
+});
+
+const Stack = createStackNavigator();
+
+function App() {
 	return (
-		<View style={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
-			<Text>Configurações</Text>
-		</View>
+	  <NavigationContainer>
+		<Stack.Navigator>
+		  <Stack.Screen name="Alarms" component={HomeScreen} />
+		  <Stack.Screen name="NewAlarm" component={NewAlarmScreen} />
+		  <Stack.Screen name="Settings" component={SettingsScreen} />
+		</Stack.Navigator>
+	  </NavigationContainer>
 	);
 }
 
-const NavBar = createBottomTabNavigator();
-
-export default function App() {
-	return (
-		<NavigationContainer>
-			<NavBar.Navigator initialRouteName="LocAlarm"
-                        tabBarPosition="bottom">
-				<NavBar.Screen  name="LocAlarm"
-                        component={NewAlarmScreen}
-                        options={{
-                          tabBarIcon: ({ color, size }) => (
-                            <Ionicons name="ios-alarm" color={color} size={size}/>
-                          ),
-                        }}/>
-				<NavBar.Screen  name="Configurações"
-                        component={SettingsScreen}
-                        options={{
-                          tabBarIcon: ({ color, size }) => (
-                            <Ionicons name="ios-settings" color={color} size={size}/>
-                          ),
-                        }}/>
-			</NavBar.Navigator>
-		</NavigationContainer>
-	);
-}
+export default App;

@@ -21,8 +21,10 @@
     "react-native-geocoding": "^0.5.0",
     "react-native-gesture-handler": "^2.9.0",
     "react-native-google-places-autocomplete": "^2.5.1",
+    "react-native-ionicons": "^4.6.5",
     "react-native-maps": "^1.4.0",
-    "react-native-picker": "^4.3.7"
+    "react-native-picker": "^4.3.7",
+    "react-native-status-bar-height": "^2.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
