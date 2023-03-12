@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, TouchableOpacity } from 'react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MapView, { Marker } from 'react-native-maps';
+import styles from './Styles';
 
 const activationRadiusOptions = [10, 50, 100, 200, 500, 1000];
 
@@ -56,60 +58,40 @@ function NewAlarmScreen() {
 
     return (
         <View style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 0.45 }}>
                 <MapView style={{ flex: 1 }} region={region} onPress={getMapPosition}>
                     {region && <Marker coordinate={region}/>}
                 </MapView>
             </View>
 
             <View style={{ flex: 1 }}>
-                <TextInput style={styles.textInput} onChangeText={(text) => setTag(text)} value={tag} placeholder='Etiqueta'/>
-                
-                <TextInput style={styles.textInput} onChangeText={(text) => setLocation(text)} value={location} placeholder='Localização'/>
-                
-                <View style={styles.radiusView}>
-                    <Text>Raio de Ativação</Text>
-                    <RadiusSelector	activationRadius={activationRadius} onRadiusChange={setActivationRadius}/>
+                <View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Nome do Alarme</Text>
+                    <TextInput style={{ ...styles.listItem, marginTop: 10, height: 60 }} onChangeText={(text) => setTag(text)} value={tag} placeholder='Adicione um nome ou etiqueta'/>
                 </View>
                 
-                <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 60 }}>
-                    <Button title='Concluído' onPress={submitButton}/>
+                <View style={{ backgroundColor: '#f0f0f0', padding: 15, marginTop: -20 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Localização</Text>
+                    <TextInput style={{ ...styles.listItem, marginTop: 10, height: 60 }} onChangeText={(text) => setLocation(text)} value={location} placeholder='Selecione um local no mapa'/>
+                </View>
+                
+                <View style={{ backgroundColor: '#f0f0f0', padding: 15, marginTop: -20 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Raio de Ativação</Text>
+                    
+                    <View style={{ ...styles.listItem, ...styles.radiusView, justifyContent: 'center', alignItems: 'center', height: 60 }}>
+                        <RadiusSelector	activationRadius={activationRadius} onRadiusChange={setActivationRadius}/>
+                    </View>                    
+                </View>
+                
+                <View style={{ backgroundColor: '#f0f0f0', padding: 15, marginTop: -20, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={submitButton}>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', marginRight: 10 }}>Concluído</Text>
+                        <FontAwesome name="check" size={22} style={{ color: 'black' }} />
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    textInput: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginTop: 10,
-        marginLeft: 10,
-        marginRight: 10,
-        borderRadius: 20,
-        paddingLeft: 15,
-    },
-    radiusView: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginLeft: 15,
-        marginTop: 10,
-    },
-    radius: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 30,
-        padding: 5,
-        marginLeft: 10,
-        marginRight: 10,
-        width: 200,
-    },
-});
 
 export default NewAlarmScreen;

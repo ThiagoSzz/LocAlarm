@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
+
 import NewAlarmScreen from './NewAlarm';
 import SettingsScreen from './Settings';
+import styles from './Styles';
 
 const HomeScreen = ({ navigation }) => {
 	const [favorite, setFavorite] = useState([
@@ -120,46 +121,10 @@ const HomeScreen = ({ navigation }) => {
 			<View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
 				<Text style={{ fontSize: 18, fontWeight: 'bold' }}>Histórico</Text>
 			</View>
-			<FlatList style={{ paddingHorizontal: 15 }}	data={historical}	renderItem={showItemHistorical} />
+			<FlatList style={{ paddingHorizontal: 15 }}	data={historical} renderItem={showItemHistorical} />
 		</View>
 	);
 }
-
-const styles = StyleSheet.create({
-	header: {
-		flexDirection: 'row',
-		backgroundColor: 'white',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		paddingVertical: 10,
-		paddingHorizontal: 15,
-	},
-	listItem: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		backgroundColor: 'white',
-		padding: 15,
-		borderRadius: 5,
-		marginBottom: 10,
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 0.25,
-		shadowRadius: 2,
-		elevation: 2,
-	},
-	alarmName: {
-		fontSize: 18,
-		fontWeight: 'bold',
-		marginBottom: 5,
-	},
-	alarmDescription: {
-		color: '#8E8E93',
-		fontStyle: 'italic',
-		fontSize: 14,
-		marginBottom: 5,
-	},
-});
 
 const Stack = createStackNavigator();
 
