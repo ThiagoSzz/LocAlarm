@@ -1,60 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useRoute } from '@react-navigation/native';
 
 import NewAlarmScreen from './NewAlarm';
 import SettingsScreen from './Settings';
 import styles from './Styles';
 
 const HomeScreen = ({ navigation }) => {
+	let [currId, setCurrId] = useState(5);
+
+	const route = useRoute();
+    const newAlarm = route.params?.newAlarm;
+
+	useEffect(() => {
+        if (newAlarm) {
+			var localId = incrementId();
+        	setHistorical([...historical, { ...newAlarm, id: localId, createdAt: new Date(newAlarm.createdAt) }]);
+        }
+    }, [newAlarm]);
+
 	const [favorite, setFavorite] = useState([
 		{
 			id: 1,
 			name: 'Campus do Vale',
-			description: 'Endereço 1',
+			description: 'Endereço...',
 			enabled: true,
 		},
 		{
 			id: 2,
 			name: 'Centro',
-			description: 'Endereço 2',
+			description: 'Endereço...',
 			enabled: false,
 		},
-		{
-			id: 3,
-			name: 'Casa',
-			description: 'Endereço 3',
-			enabled: true,
-		},
-		{
-			id: 4,
-			name: 'Mercado',
-			description: 'Endereço 4',
-			enabled: true,
-		},
-		{
-			id: 5,
-			name: 'Aeroporto',
-			description: 'Endereço 5',
-			enabled: true,
-		},
-	]);	  
+	]);  
 
 	const [historical, setHistorical] = useState([
 		{
+			id: 3,
 			name: 'Mercearia',
-			description: 'Endereço 6',
+			description: 'Endereço...',
 			createdAt: new Date()
 		},
 		{
+			id: 4,
 			name: 'Campus Saúde',
-			description: 'Endereço 7',
+			description: 'Endereço...',
+			createdAt: new Date()
+		},
+		{
+			id: 5,
+			name: 'Campus Engenharia',
+			description: 'Endereço...',
 			createdAt: new Date()
 		},
 	]);
 
+	function incrementId () {
+		setCurrId(currId + 1);
+
+		return currId + 1;
+	};
+
+	const historicalToFavorite = ({ item }) => {
+		const index = historical.indexOf(item);
+		const removed = historical.splice(index, 1)[0];
+
+		const localId = incrementId();
+		setFavorite([...favorite, { ...removed, id: localId, enabled: true }]);
+	};
+	  
 	const toggleAlarm = (id) => {
 		setFavorite((prevState) =>
 			prevState.map((item) =>
@@ -92,7 +108,7 @@ const HomeScreen = ({ navigation }) => {
 			<Text style={styles.alarmDescription}>Criado em {item.createdAt.toLocaleDateString()} às {item.createdAt.toLocaleTimeString()}</Text>
 			</View>
 			<TouchableOpacity>
-				<FontAwesome name="star" size={32} color="#FFD700" style={{ marginRight: 15 }} />
+				<FontAwesome name="star" onPress={() => historicalToFavorite({ item })} size={32} color="#FFD700" style={{ marginRight: 15 }} />
 			</TouchableOpacity>
 		</View>
 		);

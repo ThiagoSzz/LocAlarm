@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, TouchableOpacity } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MapView, { Marker } from 'react-native-maps';
+import { useNavigation } from '@react-navigation/native';
 import styles from './Styles';
 
 const activationRadiusOptions = [10, 50, 100, 200, 500, 1000];
@@ -41,6 +42,7 @@ const RadiusSelector = ({ activationRadius, onRadiusChange }) => {
 };
 
 function NewAlarmScreen() {
+    const navigation = useNavigation();
     const [tag, setTag] = useState('');
     const [location, setLocation] = useState('');
     const [region, setRegion] = useState(null);
@@ -48,6 +50,9 @@ function NewAlarmScreen() {
 
     const submitButton = () => {
         console.log(`Etiqueta: ${tag} | Localização: ${location} | Latitude/Longitude: ${region?.latitude ?? 0}/${region?.longitude ?? 0} | Raio de ativação: ${activationRadius}`);
+        
+        const newAlarm = {name: tag, description: location, createdAt: new Date(Date.now()).toISOString()};
+        navigation.navigate('Alarms', { newAlarm });
     };
 
     const getMapPosition = (event) => {
