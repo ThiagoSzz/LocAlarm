@@ -22,39 +22,14 @@ const HomeScreen = ({ navigation }) => {
     }, [newAlarm]);
 
 	const [favorite, setFavorite] = useState([
-		{
-			id: 1,
-			name: 'Campus do Vale',
-			description: 'Endereço...',
-			enabled: true,
-		},
-		{
-			id: 2,
-			name: 'Centro',
-			description: 'Endereço...',
-			enabled: false,
-		},
+		{ id: 1, name: 'Campus do Vale', description: 'Endereço...', enabled: true },
+		{ id: 2, name: 'Centro', description: 'Endereço...', enabled: false },
 	]);  
 
 	const [historical, setHistorical] = useState([
-		{
-			id: 3,
-			name: 'Mercearia',
-			description: 'Endereço...',
-			createdAt: new Date()
-		},
-		{
-			id: 4,
-			name: 'Campus Saúde',
-			description: 'Endereço...',
-			createdAt: new Date()
-		},
-		{
-			id: 5,
-			name: 'Campus Engenharia',
-			description: 'Endereço...',
-			createdAt: new Date()
-		},
+		{ id: 3, name: 'Mercearia', description: 'Endereço...', createdAt: new Date() },
+		{ id: 4, name: 'Campus Saúde', description: 'Endereço...', createdAt: new Date() },
+		{ id: 5, name: 'Campus Engenharia', description: 'Endereço...', createdAt: new Date() }
 	]);
 
 	function incrementId () {
@@ -87,13 +62,13 @@ const HomeScreen = ({ navigation }) => {
 				<Text style={styles.alarmDescription}>{item.description}</Text>
 				</View>
 				<TouchableOpacity onPress={() => navigation.navigate('AllarmSettings')}>
-					<FontAwesome name="cog" size={30} color="#888888" style={{ marginRight: 15 }} />
+					<FontAwesome name="cog" size={30} color="#888888" style={{ marginRight: 15 }}/>
 				</TouchableOpacity>
 				<TouchableOpacity onPress={() => toggleAlarm(item.id)}>
 					{item.enabled ? (
-						<FontAwesome name="toggle-on" size={40} color="#4CD964" />
+						<FontAwesome name="toggle-on" size={40} color="#4CD964"/>
 					) : (
-						<FontAwesome name="toggle-off" size={40} color="#C7C7CC" />
+						<FontAwesome name="toggle-off" size={40} color="#C7C7CC"/>
 					)}
 				</TouchableOpacity>
 			</View>
@@ -108,7 +83,7 @@ const HomeScreen = ({ navigation }) => {
 			<Text style={styles.alarmDescription}>Criado em {item.createdAt.toLocaleDateString()} às {item.createdAt.toLocaleTimeString()}</Text>
 			</View>
 			<TouchableOpacity>
-				<FontAwesome name="star" onPress={() => historicalToFavorite({ item })} size={32} color="#FFD700" style={{ marginRight: 15 }} />
+				<FontAwesome name="star" onPress={() => historicalToFavorite({ item })} size={32} color="#FFD700" style={{ marginRight: 15 }}/>
 			</TouchableOpacity>
 		</View>
 		);
@@ -121,10 +96,10 @@ const HomeScreen = ({ navigation }) => {
 				
 				<View style={{ flexDirection: 'row' }}>
 					<TouchableOpacity onPress={() => navigation.navigate('NewAlarm')}>
-						<FontAwesome name="plus" size={25} style={{ color: 'black',	marginLeft: 25 }} />
+						<FontAwesome name="plus" size={25} style={{ color: 'black',	marginLeft: 25 }}/>
 					</TouchableOpacity>
 					<TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-						<FontAwesome name="cog" size={25} style={{ color: 'black',	marginLeft: 25 }} />
+						<FontAwesome name="cog" size={25} style={{ color: 'black',	marginLeft: 25 }}/>
 					</TouchableOpacity>
 				</View>
 			</View>
@@ -132,12 +107,12 @@ const HomeScreen = ({ navigation }) => {
 			<View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
 				<Text style={{ fontSize: 18, fontWeight: 'bold' }}>Favoritos</Text>
 			</View>
-			<FlatList style={{ paddingHorizontal: 15, height: 250 }} data={favorite} keyExtractor={(item) => item.id.toString()} renderItem={showItemFavorite} />
+			<FlatList style={{ paddingHorizontal: 15, height: 250 }} data={favorite} keyExtractor={(item) => item.id.toString()} renderItem={showItemFavorite}/>
 			
 			<View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
 				<Text style={{ fontSize: 18, fontWeight: 'bold' }}>Histórico</Text>
 			</View>
-			<FlatList style={{ paddingHorizontal: 15 }}	data={historical} renderItem={showItemHistorical} />
+			<FlatList style={{ paddingHorizontal: 15 }}	data={historical} renderItem={showItemHistorical}/>
 		</View>
 	);
 }
@@ -148,9 +123,9 @@ function App() {
 	return (
 	  <NavigationContainer>
 		<Stack.Navigator>
-		  <Stack.Screen name="Alarms" component={HomeScreen} />
-		  <Stack.Screen name="NewAlarm" component={NewAlarmScreen} />
-		  <Stack.Screen name="Settings" component={SettingsScreen} />
+		  <Stack.Screen name="Alarms" component={HomeScreen}/>
+		  <Stack.Screen name="NewAlarm" component={NewAlarmScreen}/>
+		  <Stack.Screen name="Settings" component={SettingsScreen}/>
 		</Stack.Navigator>
 	  </NavigationContainer>
 	);
