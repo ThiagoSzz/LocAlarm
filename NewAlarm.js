@@ -81,7 +81,7 @@ function NewAlarmScreen() {
     const submitButton = () => {
         console.log(`Etiqueta: ${tag} | Localização: ${location} | Latitude/Longitude: ${region?.latitude ?? 0}/${region?.longitude ?? 0} | Raio de ativação: ${activationRadius}`);
         
-        const newAlarm = {name: tag, description: location, createdAt: new Date(Date.now()).toISOString()};
+        const newAlarm = {name: tag, description: location, longitude: region?.longitude, latitude: region?.latitude, radius: activationRadius, createdAt: new Date(Date.now()).toISOString()};
         navigation.navigate('Alarms', { newAlarm });
     };
 

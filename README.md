@@ -25,5 +25,6 @@ Envio de LOGs
 
 ```bash
   cd localarm
+  npm install
   npm start
 ```
