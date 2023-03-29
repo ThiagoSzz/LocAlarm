@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import styles from './Styles';
+import * as Location from 'expo-location';
 
 const RadiusSelector = ({ activationRadius, onRadiusChange }) => {
     const activationRadiusOptions = [10, 50, 100, 200, 500, 1000];
@@ -45,6 +46,22 @@ function NewAlarmScreen() {
     const [region, setRegion] = useState(null);
     const [addressError, setAddressError] = useState('');
     const [activationRadius, setActivationRadius] = useState(50);
+    const [GPSlocation, setGPSLocation] = useState(null);
+
+
+    useEffect(() => {
+        (async () => {
+          
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
+            setErrorMsg('Permission to access location was denied');
+            return;
+          }
+    
+          let location = await Location.getCurrentPositionAsync({});
+          setGPSLocation({latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.009, longitudeDelta: 0.009});
+        })();
+      }, []);
 
     const states = {
         'Acre': 'AC', 'Alagoas': 'AL', 'Amapá': 'AP', 'Amazonas': 'AM', 
@@ -129,9 +146,11 @@ function NewAlarmScreen() {
 
     return (
         <View style={{ flex: 1 }}>
-            <MapView style={{ flex: 0.45 }} region={region} onPress={getMapPosition}>
+            {GPSlocation && <MapView style={{ flex: 0.45 }} region={region} onPress={getMapPosition} initialRegion={GPSlocation}>
                 {region && <Marker coordinate={region}/>}
-            </MapView>
+            </MapView>}
+            
+            
 
             <ScrollView style={{ flex: 0.55 }}>
                 <View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
