@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Circle } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import styles from './Styles';
 import * as Location from 'expo-location';
@@ -148,6 +148,8 @@ function NewAlarmScreen() {
         <View style={{ flex: 1 }}>
             {GPSlocation && <MapView style={{ flex: 0.45 }} region={region} onPress={getMapPosition} initialRegion={GPSlocation}>
                 {region && <Marker coordinate={region}/>}
+                {GPSlocation && <Marker coordinate={GPSlocation} title='You' pinColor='blue' />}
+                {activationRadius && region && <Circle center={region} radius={activationRadius}/>}
             </MapView>}
             
             
