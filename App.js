@@ -3,8 +3,11 @@ import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
+import { GeofencingEventType } from 'expo-location';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
+
+import * as TaskManager from 'expo-task-manager';
 
 import NewAlarmScreen from './NewAlarm';
 import SettingsScreen from './Settings';
@@ -21,43 +24,23 @@ Notifications.setNotificationHandler({
 const HomeScreen = ({ navigation }) => {
 	let [currId, setCurrId] = useState(5);
 	const [favorite, setFavorite] = useState([
-		{ id: 1, name: 'Campus do Vale', description: 'Endereço...', latitude: 0, longitude: 0, radius: 10, enabled: true },
+		{ id: 1, name: 'Campus do Vale', description: 'Endereço...', latitude: -30.035042740503524, longitude: -51.21054466813803,  radius: 1000, enabled: true },
 	]);  
 
 	const [historical, setHistorical] = useState([
-		{ id: 3, name: 'Mercearia', description: 'Endereço...', latitude: 0, longitude: 0, radius:0, createdAt: new Date() }
+		{ id: 3, name: 'Mercearia', description: 'Endereço...', latitude: 0, longitude: 0, radius: 20, createdAt: new Date() }
 	]);
 	const [expoPushToken, setExpoPushToken] = useState('');
 	const [notification, setNotification] = useState(false);
 	const notificationListener = useRef();
 	const responseListener = useRef();
+	let regions = [];
 
 	const route = useRoute();
     const newAlarm = route.params?.newAlarm;
+	let regionsEnabled = [];
 
-	
-
-
-	// Devolve em metros distância entre latitudes
-	function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-		var R = 6371; // Radius of the earth in km
-		var dLat = deg2rad(lat2-lat1);  // deg2rad below
-		var dLon = deg2rad(lon2-lon1); 
-		var a = 
-		  Math.sin(dLat/2) * Math.sin(dLat/2) +
-		  Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-		  Math.sin(dLon/2) * Math.sin(dLon/2)
-		  ; 
-		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-		var d = R * c; // Distance in km
-		return d;
-	}
-	  
-	function deg2rad(deg) {
-		return deg * (Math.PI/180)
-	}
-
-
+	// Push Notification
 	async function registerForPushNotificationsAsync() {
 		let token;
 	  
@@ -81,12 +64,53 @@ const HomeScreen = ({ navigation }) => {
 			return;
 		  }
 		  token = (await Notifications.getExpoPushTokenAsync()).data;
-		  console.log(token);
 
-	  
 		return token;
 	  }
 
+	// Caso ocorra toggle alarm dar update em geofence
+	const toggleAlarm = (name) => {
+		setFavorite((prevState) =>
+			prevState.map((item) =>
+				item.name === name ? { ...item, enabled: !item.enabled } : item
+			)
+		);
+	};
+	
+	useEffect(() => {
+	  TaskManager.defineTask("LOCATION_GEOFENCE", async ({ data: { eventType, region }, error }) => {
+		if (error) {
+		  return;
+		}
+		if (eventType === GeofencingEventType.Enter) {
+		  console.log("You've entered region:", region);
+		  await Notifications.scheduleNotificationAsync({
+			content: {
+				title: 'You reached ' + region.identifier,
+				body: 'You reached your destination'
+			},
+			trigger: { seconds: 1 },
+		});
+
+		  toggleAlarm(region.identifier)
+		}
+	  });
+	}, [])
+
+	useEffect(() => {
+		favorite.forEach(fav => {
+			if (fav.enabled) {
+				regionsEnabled.push({identifier: fav.name, latitude:fav.latitude, longitude:fav.longitude, radius:fav.radius, notifyOnEnter: true})
+			}
+		});
+		regions = regionsEnabled
+		regionsEnabled = []
+		regions.length !== 0? Location.startGeofencingAsync("LOCATION_GEOFENCE", regions) : Location.stopGeofencingAsync("LOCATION_GEOFENCE", regions)
+    }, [favorite]);
+
+
+
+	// Push Notification
 	useEffect(() => {
 		registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
 	
@@ -104,11 +128,13 @@ const HomeScreen = ({ navigation }) => {
 		};
 	  }, []);
 
+	// Receive alarm
 	useEffect(() => {
         if (newAlarm) {
 			var localId = incrementId();
         	setHistorical([...historical, { ...newAlarm, id: localId, createdAt: new Date(newAlarm.createdAt) }]);
         }
+
     }, [newAlarm]);
 
 
@@ -120,47 +146,19 @@ const HomeScreen = ({ navigation }) => {
 				return;
 			}
 			let token = (await Notifications.getExpoPushTokenAsync()).data;
+			const backgroundPermission = await Location.requestBackgroundPermissionsAsync()
+				if (backgroundPermission.granted) {
+					backgroundSubscrition = Location.startLocationUpdatesAsync(
+						"LOCATION_GEOFENCE", {
+							accuracy: Location.Accuracy.BestForNavigation,
+							distanceInterval: 1, // minimum change (in meters) betweens updates
+							deferredUpdatesInterval: 1000 // minimum interval (in milliseconds) between updates
+						})
+					}
 			setExpoPushToken(token);
+
 		})();
 	}, []);
-
-	useEffect(() => {
-        const getMyPosition = async () => {
-          
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-            setErrorMsg('Permission to access location was denied');
-            return;
-          }
-
-          let location = await Location.getCurrentPositionAsync({});
-		  
-		  console.log(favorite)
-		  favorite.forEach(async fav => {
-			distance = getDistanceFromLatLonInKm(location.coords.latitude, location.coords.longitude, fav.latitude, fav.longitude)
-			if (fav.enabled) {
-				if(distance < fav.radius){
-					// Send a notification
-					console.log('Notificação')
-					await Notifications.scheduleNotificationAsync({
-						content: {
-							title: 'Favorite Location Alert',
-							body: 'You are close to your favorite location!'
-						},
-						trigger: { seconds: 1 },
-					});
-				} else { 
-					// send nothing
-				}
-			}
-			});
-		  };
-		  
-		const interval = setInterval(() => {
-			getMyPosition()
-		}, 6000);
-		return () => clearInterval(interval);
-      }, [favorite]);
 
 	function incrementId () {
 		setCurrId(currId + 1);
@@ -175,15 +173,7 @@ const HomeScreen = ({ navigation }) => {
 		const localId = incrementId();
 		setFavorite([...favorite, { ...removed, id: localId, enabled: true }]);
 	};
-	  
-	const toggleAlarm = (id) => {
-		setFavorite((prevState) =>
-			prevState.map((item) =>
-				item.id === id ? { ...item, enabled: !item.enabled } : item
-			)
-		);
-		console.log(favorite)
-	};
+	
 
 	const showItemFavorite = ({ item }) => {
 		return (
@@ -195,7 +185,7 @@ const HomeScreen = ({ navigation }) => {
 				<TouchableOpacity onPress={() => navigation.navigate('AllarmSettings')}>
 					<FontAwesome name="cog" size={30} color="#888888" style={{ marginRight: 15 }}/>
 				</TouchableOpacity>
-				<TouchableOpacity onPress={() => toggleAlarm(item.id)}>
+				<TouchableOpacity onPress={() => toggleAlarm(item.name)}>
 					{item.enabled ? (
 						<FontAwesome name="toggle-on" size={40} color="#4CD964"/>
 					) : (
