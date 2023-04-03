@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MapView, { Marker, Circle } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import styles from './Styles';
@@ -41,9 +41,11 @@ const RadiusSelector = ({ activationRadius, onRadiusChange }) => {
 
 function NewAlarmScreen() {
     const navigation = useNavigation();
+    const mapViewRef = useRef(null);
     const [tag, setTag] = useState('');
     const [location, setLocation] = useState('');
     const [region, setRegion] = useState(null);
+    const [image, setImage] = useState(null);
     const [addressError, setAddressError] = useState('');
     const [activationRadius, setActivationRadius] = useState(50);
     const [GPSlocation, setGPSLocation] = useState(null);
@@ -78,10 +80,19 @@ function NewAlarmScreen() {
         return state ? state[1] : state[1];
     };
 
-    const submitButton = () => {
+    const submitButton = async () => {
         console.log(`Etiqueta: ${tag} | Localização: ${location} | Latitude/Longitude: ${region?.latitude ?? 0}/${region?.longitude ?? 0} | Raio de ativação: ${activationRadius}`);
         
-        const newAlarm = {name: tag, description: location, longitude: region?.longitude, latitude: region?.latitude, radius: activationRadius, createdAt: new Date(Date.now()).toISOString()};
+        var snapshot = await takeSnapshot(mapViewRef);
+        const newAlarm = {
+            name: tag,
+            description: location,
+            url: snapshot,
+            longitude: region?.longitude,
+            latitude: region?.latitude,
+            radius: activationRadius,
+            createdAt: new Date(Date.now()).toISOString()
+        };
         navigation.navigate('Alarms', { newAlarm });
     };
 
@@ -144,17 +155,46 @@ function NewAlarmScreen() {
         });
     };
 
+    async function takeSnapshot(mapViewRef) {
+        try {
+          const snapshot = await mapViewRef.current.takeSnapshot({
+            format: 'png',
+            quality: 0.8,
+            result: 'file',
+            styleURL: 'mapbox://styles/mapbox/navigation-day-v1'
+          });
+        
+          console.log('Snapshot:', snapshot);
+      
+          return snapshot;
+        } catch (error) {
+          console.error('Erro ao tirar snapshot:', error);
+        }
+      }
+
     return (
         <View style={{ flex: 1 }}>
-            {GPSlocation && <MapView style={{ flex: 0.45 }} region={region} onPress={getMapPosition} initialRegion={GPSlocation}>
-                {region && <Marker coordinate={region}/>}
-                {GPSlocation && <Marker coordinate={GPSlocation} title='You' pinColor='blue' />}
-                {activationRadius && region && <Circle center={region} radius={activationRadius}/>}
-            </MapView>}
-            
-            
+			<View style={{ ...styles.header, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                <TouchableOpacity style={{ position: 'absolute', left: 0, marginLeft: 15 }} onPress={() => navigation.navigate('Alarms')}>
+                    <FontAwesome5 name="angle-left" size={30} style={{ color: 'black' }}/>
+                </TouchableOpacity>
 
-            <ScrollView style={{ flex: 0.55 }}>
+                <Text style={{ fontSize: 24, color: 'black', textAlign: 'center' }}>Adicionar Alarme</Text>
+
+                <TouchableOpacity style={{ position: 'absolute', right: 0, marginRight: 15 }} onPress={submitButton}>
+                    <FontAwesome5 name="check" size={24} style={{ color: 'black'}}/>
+                </TouchableOpacity>
+            </View>
+
+            {GPSlocation &&
+                <MapView ref={mapViewRef} style={{ flex: 0.45 }} region={region} onPress={getMapPosition} initialRegion={GPSlocation}>
+                    {region && <Marker coordinate={region}/>}
+                    {GPSlocation && <Marker coordinate={GPSlocation} title='You' pinColor='green' />}
+                    {activationRadius && region && <Circle center={region} radius={activationRadius}/>}
+                </MapView>
+            }
+
+            <ScrollView style={{ flex: 0.55 }} contentContainerStyle={{height: '148%'}}>
                 <View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
                     <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Nome do Alarme</Text>
                     <TextInput style={{ ...styles.listItem, marginTop: 10, height: 60 }} onChangeText={(text) => setTag(text)} value={tag} placeholder="Adicione um nome ou etiqueta"/>
@@ -171,13 +211,6 @@ function NewAlarmScreen() {
                     <View style={{ ...styles.listItem, ...styles.radiusView, justifyContent: 'center', alignItems: 'center', height: 60 }}>
                         <RadiusSelector activationRadius={activationRadius} onRadiusChange={setActivationRadius}/>
                     </View>
-                </View>
-
-                <View style={{ backgroundColor: '#f0f0f0', padding: 15, marginTop: -10, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={submitButton}>
-                        <Text style={{ fontSize: 18, fontWeight: 'bold', marginRight: 10 }}>Concluído</Text>
-                        <FontAwesome name="check" size={22} style={{ color: 'black' }}/>
-                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </View>
