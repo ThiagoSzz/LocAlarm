@@ -1,0 +1,41 @@
+{
+  "name": "localarm",
+  "version": "1.0.0",
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^13.0.0",
+    "@fortawesome/fontawesome-free": "^6.4.0",
+    "@react-native-picker/picker": "^2.4.8",
+    "@react-navigation/bottom-tabs": "^6.5.5",
+    "@react-navigation/stack": "^6.3.14",
+    "axios": "^1.3.4",
+    "expo": "~47.0.12",
+    "expo-background-fetch": "~11.0.1",
+    "expo-linear-gradient": "^12.1.2",
+    "expo-location": "~15.0.1",
+    "expo-notifications": "~0.17.0",
+    "expo-status-bar": "~1.4.2",
+    "expo-task-manager": "~11.0.1",
+    "react": "18.1.0",
+    "react-native": "0.70.5",
+    "react-native-geocoding": "^0.5.0",
+    "react-native-gesture-handler": "~2.8.0",
+    "react-native-google-places-autocomplete": "^2.5.1",
+    "react-native-ionicons": "^4.6.5",
+    "react-native-maps": "1.3.2",
+    "react-native-modal-dropdown": "^1.0.2",
+    "react-native-permissions": "^3.8.0",
+    "react-native-picker": "^4.3.7",
+    "react-native-status-bar-height": "^2.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9"
+  },
+  "private": true
+}
