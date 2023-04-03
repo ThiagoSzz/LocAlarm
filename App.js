@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList, StatusBar } from 'react-native';
+import { View, Text, Image, TouchableOpacity, FlatList, StatusBar, Dimensions } from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, useRoute } from '@react-navigation/native';

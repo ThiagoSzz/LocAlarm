@@ -36,8 +36,7 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.FOREGROUND_SERVICE"
-      ],
-      "package": "com.pyssouza.localarm"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -46,14 +45,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow localarm to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
         }
       ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "eb074372-5003-43f2-b959-44bc1e922a6f"
-      }
-    }
+    ]
   }
 }
