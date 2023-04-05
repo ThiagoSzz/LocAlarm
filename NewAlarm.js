@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform } from 'react-native';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { Feather } from '@expo/vector-icons'; 
 import MapView, { Marker, Circle } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
-import styles from './Styles';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
+
+import styles from './Styles';
+import colors from './Theme';
 
 const RadiusSelector = ({ activationRadius, onRadiusChange }) => {
     const activationRadiusOptions = [10, 50, 100, 200, 500, 1000];
@@ -27,13 +30,13 @@ const RadiusSelector = ({ activationRadius, onRadiusChange }) => {
     return (
         <View style={styles.radius}>
             <TouchableOpacity onPress={minusButton}>
-                <Text style={{ fontSize: 20, color: 'black', marginHorizontal: 10 }}> - </Text>
+                <Text style={{ fontSize: 30, color: colors.primaryTextAndIcons, marginHorizontal: 10 }}> - </Text>
             </TouchableOpacity>
             
-            <Text style={{ fontSize: 15, flex: 1, textAlign: 'center', paddingVertical: 5 }}> {activationRadiusOptions[currentIndex]} metros </Text>
+            <Text style={{ fontSize: 15, flex: 1, textAlign: 'center', paddingVertical: 5, color: colors.primaryTextAndIcons }}> {activationRadiusOptions[currentIndex]} metros </Text>
             
             <TouchableOpacity onPress={plusButton}>
-                <Text style={{ fontSize: 20, color: 'black', marginHorizontal: 10 }}> + </Text>
+                <Text style={{ fontSize: 30, color: colors.primaryTextAndIcons, marginHorizontal: 10 }}> + </Text>
             </TouchableOpacity>
         </View>
     );
@@ -170,45 +173,51 @@ function NewAlarmScreen() {
         } catch (error) {
           console.error('Erro ao tirar snapshot:', error);
         }
-      }
+    }
 
     return (
         <View style={{ flex: 1 }}>
-			<View style={{ ...styles.header, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                <TouchableOpacity style={{ position: 'absolute', left: 0, marginLeft: 15 }} onPress={() => navigation.navigate('Alarms')}>
-                    <FontAwesome5 name="angle-left" size={30} style={{ color: 'black' }}/>
-                </TouchableOpacity>
+            <LinearGradient colors={[colors.primaryBackground, '#f9f5ea']} start={[0, 0]} end={[0, 1]} style={{ ...styles.header }}>
+				<View style={{ backgroundColor: colors.primaryBackground, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, width: '100%', elevation: 5 }}>
+					<View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Alarms')}>
+                            <Feather name="chevron-left" size={32} style={{ color: colors.primaryTextAndIcons, marginLeft: 25 }}/>
+                        </TouchableOpacity>
 
-                <Text style={{ fontSize: 24, color: 'black', textAlign: 'center' }}>Adicionar Alarme</Text>
+                        <View style={{ flex: 1, alignItems: 'center' }}>
+							<Text style={{ fontWeight: 'bold', fontSize: 18, color: colors.primaryTextAndIcons }}>Novo Alarme</Text>
+						</View>
 
-                <TouchableOpacity style={{ position: 'absolute', right: 0, marginRight: 15 }} onPress={submitButton}>
-                    <FontAwesome5 name="check" size={24} style={{ color: 'black'}}/>
-                </TouchableOpacity>
-            </View>
+                        <TouchableOpacity onPress={submitButton}>
+                            <Feather name="check" size={30} style={{ color: colors.primaryTextAndIcons, marginRight: 25}}/>
+                        </TouchableOpacity>
+					</View>
+				</View>
+			</LinearGradient>
 
             {GPSlocation &&
-                <MapView ref={mapViewRef} style={{ flex: 0.45 }} region={region} onPress={getMapPosition} initialRegion={GPSlocation}>
+                <MapView ref={mapViewRef} style={{ flex: 0.67 }} region={region} onPress={getMapPosition} initialRegion={GPSlocation}>
                     {region && <Marker coordinate={region}/>}
                     {GPSlocation && <Marker coordinate={GPSlocation} title='You' pinColor='green' />}
                     {activationRadius && region && <Circle center={region} radius={activationRadius}/>}
                 </MapView>
             }
 
-            <ScrollView style={{ flex: 0.55 }} contentContainerStyle={{height: '148%'}}>
-                <View style={{ backgroundColor: '#f0f0f0', padding: 15 }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Nome do Alarme</Text>
-                    <TextInput style={{ ...styles.listItem, marginTop: 10, height: 60 }} onChangeText={(text) => setTag(text)} value={tag} placeholder="Adicione um nome ou etiqueta"/>
+            <ScrollView style={{ flex: 0.33, backgroundColor: colors.primaryBackground, borderTopLeftRadius: 20, borderTopRightRadius: 20, borderBottomWidth: 1, padding: 15 }} contentContainerStyle={{height: '148%'}}>
+                <View style={{ marginTop: 10 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.primaryTextAndIcons }}>Nome do Alarme</Text>
+                    <TextInput style={{ ...styles.listItem, marginTop: 10, height: 60, backgroundColor: colors.secondaryBackground, color: colors.primaryTextAndIcons }} onChangeText={(text) => setTag(text)} value={tag} placeholder="Adicione um nome ou etiqueta" placeholderTextColor={colors.primaryTextAndIcons}/>
                 </View>
 
-                <View style={{ backgroundColor: '#f0f0f0', padding: 15, marginTop: -20 }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Localização</Text>
-                    <TextInput style={{ ...styles.listItem, marginTop: 10, height: 60 }} onChangeText={(text) => setLocation(text)} value={location} placeholder={addressError || "Selecione um local no mapa"} onSubmitEditing={() => updatePinPosition(location)}/>
+                <View style={{ marginTop: 10 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.primaryTextAndIcons }}>Localização</Text>
+                    <TextInput style={{ ...styles.listItem, marginTop: 10, height: 60, backgroundColor: colors.secondaryBackground, color: colors.primaryTextAndIcons }} onChangeText={(text) => setLocation(text)} value={location} placeholder={addressError || "Selecione um local no mapa"}  placeholderTextColor={colors.primaryTextAndIcons} onSubmitEditing={() => updatePinPosition(location)}/>
                 </View>
 
-                <View style={{ backgroundColor: '#f0f0f0', padding: 15, marginTop: -20 }}>
-                    <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Raio de Ativação</Text>
+                <View style={{ marginTop: 10 }}>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.primaryTextAndIcons }}>Raio de Ativação</Text>
 
-                    <View style={{ ...styles.listItem, ...styles.radiusView, justifyContent: 'center', alignItems: 'center', height: 60 }}>
+                    <View style={{ ...styles.listItem, ...styles.radiusView, justifyContent: 'center', alignItems: 'center', height: 60, backgroundColor: colors.secondaryBackground }}>
                         <RadiusSelector activationRadius={activationRadius} onRadiusChange={setActivationRadius}/>
                     </View>
                 </View>
