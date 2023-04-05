@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList, StatusBar, Dimensions } from 'react-native';
+import { View, Text, Image, TouchableOpacity, FlatList, StatusBar } from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
@@ -20,6 +20,36 @@ Notifications.setNotificationHandler({
 		shouldPlaySound: true,
 		shouldSetBadge: true,
 	}),
+});
+
+let regionsTask = []
+
+TaskManager.defineTask("LOCATION_GEOFENCE", async ({ data: { eventType, region }, error }) => {
+	
+	let isRegionIn = 0
+
+	if(region) {
+		isRegionIn = regionsTask.findIndex(element => {
+			if (element === region.identifier) {
+			  return true;
+			}
+		  });
+	}
+	
+	if (error) {
+	  return;
+	}
+	
+	if (eventType === GeofencingEventType.Enter && isRegionIn === -1) {
+	  regionsTask.push(region.identifier)
+	  await Notifications.scheduleNotificationAsync({
+		content: {
+			title: 'You reached ' + region.identifier,
+			body: 'You reached your destination'
+		},
+		trigger: { seconds: 1 },
+	});
+	}
 });
 
 const Card = ({ imageUrl, title, description, enabled, onToggle }) => {
@@ -77,7 +107,7 @@ const Card = ({ imageUrl, title, description, enabled, onToggle }) => {
 
 const HomeScreen = ({ navigation }) => {
 	const [favorite, setFavorite] = useState([
-		{ id: 1, url: 'https://picsum.photos/200/300', name: 'Campus do Vale', description: 'Endereço...', latitude: -30.035042740503524, longitude: -51.21054466813803, radius: 1000, enabled: true },
+		{ id: 1, url: 'https://picsum.photos/200/300', name: 'Campus do Vale', description: 'Endereço...', latitude: -30.035042740503524, longitude: -51.21054466813803, radius: 1000000000, enabled: true },
 	]);  
 
 	const [historical, setHistorical] = useState([
@@ -88,14 +118,15 @@ const HomeScreen = ({ navigation }) => {
 
 	const [expoPushToken, setExpoPushToken] = useState('');
 	const [notification, setNotification] = useState(false);
+
 	const notificationListener = useRef();
 	const responseListener = useRef();
-	let regions = [];
 
 	const route = useRoute();
     const newAlarm = route.params?.newAlarm;
 	let regionsEnabled = [];
-
+	let regions = [];
+	
 	// Push Notification
 	async function registerForPushNotificationsAsync() {
 		let token;
@@ -131,41 +162,41 @@ const HomeScreen = ({ navigation }) => {
 				item.id === id ? { ...item, enabled: !item.enabled } : item
 			)
 		);
-	};
-	
-	useEffect(() => {
-	  TaskManager.defineTask("LOCATION_GEOFENCE", async ({ data: { eventType, region }, error }) => {
-		if (error) {
-		  return;
-		}
-		if (eventType === GeofencingEventType.Enter) {
-		  console.log("You've entered region:", region);
-		  await Notifications.scheduleNotificationAsync({
-			content: {
-				title: 'You reached ' + region.identifier,
-				body: 'You reached your destination'
-			},
-			trigger: { seconds: 1 },
-		});
-
-		setFavorite((prevState) =>
-			prevState.map((item) =>
-				item.name === region.identifier ? { ...item, enabled: !item.enabled } : item
-			)
-		);
-		}
-	  });
-	}, [])
-
-	useEffect(() => {
+		
 		favorite.forEach(fav => {
-			if (fav.enabled) {
-				regionsEnabled.push({identifier: fav.name, latitude:fav.latitude, longitude:fav.longitude, radius:fav.radius, notifyOnEnter: true})
+			if (fav.enabled && fav.id === id) {
+				regionsTask = regionsTask.splice(regionsTask.indexOf(fav.name),1)
 			}
 		});
-		regions = regionsEnabled
-		regionsEnabled = []
-		regions.length !== 0? Location.startGeofencingAsync("LOCATION_GEOFENCE", regions) : Location.stopGeofencingAsync("LOCATION_GEOFENCE", regions)
+
+	};
+
+	useEffect(() => {
+
+		const startGeofence = async () => {
+
+			const started = await Location.hasStartedGeofencingAsync("LOCATION_GEOFENCE")
+			if (started){
+				const stopped = await Location.stopGeofencingAsync("LOCATION_GEOFENCE")
+			} 
+			Location.startGeofencingAsync("LOCATION_GEOFENCE", regions)
+		  };
+
+		favorite.forEach(fav => {
+			if (fav.enabled) {
+				regionsEnabled.push({identifier: fav.name, latitude:fav.latitude, longitude:fav.longitude, radius:fav.radius})
+			}
+		});
+		// Verifica todas regiões enabled
+		if (regionsEnabled !== regions){
+			regions = regionsEnabled
+			regionsEnabled = []
+			if (regions.length !== 0) {
+				startGeofence()
+			} else {
+				TaskManager.unregisterAllTasksAsync()
+			}
+		}
     }, [favorite]);
 
 	// Push Notification
@@ -177,7 +208,6 @@ const HomeScreen = ({ navigation }) => {
 		});
 	
 		responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-		  console.log(response);
 		});
 	
 		return () => {
@@ -195,7 +225,6 @@ const HomeScreen = ({ navigation }) => {
 
     }, [newAlarm]);
 
-
 	useEffect(() => {
 		(async () => {
 			let { status } = await Notifications.requestPermissionsAsync();
@@ -204,19 +233,25 @@ const HomeScreen = ({ navigation }) => {
 				return;
 			}
 			let token = (await Notifications.getExpoPushTokenAsync()).data;
+			setExpoPushToken(token);
+			await Location.requestForegroundPermissionsAsync();
 			const backgroundPermission = await Location.requestBackgroundPermissionsAsync()
 				if (backgroundPermission.granted) {
 					backgroundSubscrition = Location.startLocationUpdatesAsync(
 						"LOCATION_GEOFENCE", {
 							accuracy: Location.Accuracy.BestForNavigation,
 							distanceInterval: 1, // minimum change (in meters) betweens updates
-							deferredUpdatesInterval: 1000 // minimum interval (in milliseconds) between updates
+							deferredUpdatesInterval: 10 // minimum interval (in milliseconds) between updates
 						})
 					}
-			setExpoPushToken(token);
-
+					const started = await Location.hasStartedGeofencingAsync("LOCATION_GEOFENCE")
+					const isRegisteredconst = await TaskManager.isTaskRegisteredAsync(
+						"LOCATION_GEOFENCE"
+					  );
+					
 		})();
 	}, []);
+
 
 	function incrementId () {
 		setCurrId(currId + 1);
