@@ -6,6 +6,14 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "extra": {
+      "expo": {
+        "suppressWarnings": true
+      },
+      "eas": {
+        "projectId": "4f00dec0-298a-4309-8667-b01b488568be"
+      }
+    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",

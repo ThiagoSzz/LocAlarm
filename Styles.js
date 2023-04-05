@@ -6,11 +6,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'row',
-        paddingHorizontal: 15,
         backgroundColor: 'transparent'
     },
 	commonSection: {
-		backgroundColor: '#ffffff',
 		padding: 15,
 		borderRadius: 5,
 		marginBottom: 10,
@@ -19,7 +17,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: 'white',
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderRadius: 15,
@@ -36,14 +33,12 @@ const styles = StyleSheet.create({
 		marginBottom: 5,
 	},
 	alarmDescription: {
-		color: '#8E8E93',
 		fontStyle: 'italic',
 		fontSize: 12,
 		marginBottom: 5,
 	},
     textInput: {
         height: 40,
-        borderColor: 'gray',
         borderWidth: 1,
         marginTop: 10,
         marginLeft: 10,
@@ -73,7 +68,6 @@ const styles = StyleSheet.create({
 	card: {
         width: '95%',
         borderRadius: 8,
-        backgroundColor: 'white',
         marginBottom: 12,
         elevation: 2,
         shadowColor: '#000',
@@ -98,10 +92,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 8,
     },
-    cardDescription: {
-        fontSize: 14,
-        color: '#666',
-    },
     cardActions: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -119,7 +109,6 @@ const styles = StyleSheet.create({
     },
     circle: {
         borderRadius: 50,
-        backgroundColor: '#F0F0F0',
         padding: 3,
         alignSelf: 'flex-start',
         marginTop: 10,
@@ -138,12 +127,6 @@ const styles = StyleSheet.create({
     dayOfWeekText: {
         color: '#000000',
         fontSize: 10,
-    },
-    daySelected: {
-        backgroundColor: '#b8e986'
-    },
-    dayNotSelected: {
-        backgroundColor: '#ff9393'
     }
 });
 
