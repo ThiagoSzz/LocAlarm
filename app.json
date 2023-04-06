@@ -6,6 +6,17 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "extra": {
+      "expo": {
+        "suppressWarnings": true
+      },
+      "updates": {
+        "fallbackToCacheTimeout": 0
+      },
+      "eas": {
+        "projectId": "4f00dec0-298a-4309-8667-b01b488568be"
+      }
+    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -24,7 +35,8 @@
           "location",
           "fetch"
         ]
-      }
+      },
+      "bundleIdentifier": "com.thiagoszzrs2.localarm"
     },
     "android": {
       "adaptiveIcon": {
@@ -35,9 +47,11 @@
         "ACCESS_BACKGROUND_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.FOREGROUND_SERVICE"
+        "android.permission.FOREGROUND_SERVICE",
+        "LOCATION",
+        "LOCATION_BACKGROUND"
       ],
-      "package": "com.pyssouza.localarm"
+      "package": "com.thiagoszzrs2.localarm"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -46,14 +60,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow localarm to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
         }
       ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "eb074372-5003-43f2-b959-44bc1e922a6f"
-      }
-    }
+    ]
   }
 }
