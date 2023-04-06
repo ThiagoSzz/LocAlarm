@@ -4,7 +4,6 @@ import { Feather } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { showMessage, hideMessage } from "react-native-flash-message";
 
 import { GeofencingEventType } from 'expo-location';
 import * as Location from 'expo-location';
@@ -173,7 +172,7 @@ const HomeScreen = ({ navigation }) => {
 		  token = (await Notifications.getExpoPushTokenAsync()).data;
 
 		return token;
-	  }
+	}
 
 	// Caso ocorra toggle alarm dar update em geofence
 	const toggleAlarm = (id) => {
@@ -182,6 +181,7 @@ const HomeScreen = ({ navigation }) => {
 				item.id === id ? { ...item, enabled: !item.enabled } : item
 			)
 		);
+	}
 	const deleteAlarm = (id) => {
 		const newFavoriteList = favorite.filter((alarm) => alarm.id !== id);
 		setFavorite(newFavoriteList);
@@ -311,6 +311,7 @@ const HomeScreen = ({ navigation }) => {
 			</View>
 		);
 	};
+
 
 	return (
 		<View style={{ flex: 1 }}>
