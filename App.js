@@ -122,7 +122,6 @@ const HomeScreen = ({ navigation }) => {
 
 	const [expoPushToken, setExpoPushToken] = useState('');
 	const [notification, setNotification] = useState(false);
-
 	const notificationListener = useRef();
 	const responseListener = useRef();
 	let regions = [];
@@ -311,7 +310,6 @@ const HomeScreen = ({ navigation }) => {
 			</View>
 		);
 	};
-
 
 	return (
 		<View style={{ flex: 1 }}>
