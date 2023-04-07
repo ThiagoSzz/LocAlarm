@@ -16,6 +16,20 @@ import SettingsScreen from './Settings';
 import styles from './Styles';
 import colors from './Theme';
 
+const playSound = async () => {
+		const soundObject = new Audio.Sound();
+
+		await soundObject.loadAsync(require('./sounds/toque.mp3'));
+
+		await soundObject.playAsync();
+
+		setTimeout(async () => {
+			await soundObject.stopAsync();
+			
+			await soundObject.unloadAsync();
+		}, 13000);
+	};
+
 Notifications.setNotificationHandler({
 	handleNotification: async () => ({
 		shouldShowAlert: true,
@@ -31,6 +45,7 @@ TaskManager.defineTask("LOCATION_GEOFENCE", async ({ data: { eventType, region }
 	let isRegionIn = 0
 
 	if(region) {
+    console.log(region)
 		isRegionIn = regionsTask.findIndex(element => {
 			if (element === region.identifier) {
 			  return true;
@@ -182,7 +197,19 @@ const HomeScreen = ({ navigation }) => {
 				item.id === id ? { ...item, enabled: !item.enabled } : item
 			)
 		);
+
+	// Caso ocorra toggle alarm dar update em geofence
+    const toggledAlarm = favorite.filter((alarm) => alarm.id === id);
+    if(toggledAlarm[0].enabled){
+       regionsTask = regionsTask.filter((alarm) => {
+         toggledAlarm[0].name !== alarm;
+       });
+    }
+	
 	}
+
+
+
 	const deleteAlarm = (id) => {
 		const newFavoriteList = favorite.filter((alarm) => alarm.id !== id);
 		setFavorite(newFavoriteList);
@@ -311,20 +338,6 @@ const HomeScreen = ({ navigation }) => {
 				</TouchableOpacity>
 			</View>
 		);
-	};
-	
-	const playSound = async () => {
-		const soundObject = new Audio.Sound();
-
-		await soundObject.loadAsync(require('./sounds/toque.mp3'));
-
-		await soundObject.playAsync();
-
-		setTimeout(async () => {
-			await soundObject.stopAsync();
-			
-			await soundObject.unloadAsync();
-		}, 13000);
 	};
 
 	return (
