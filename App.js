@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Audio } from 'expo-av';
 
 import { GeofencingEventType } from 'expo-location';
 import * as Location from 'expo-location';
@@ -42,6 +43,7 @@ TaskManager.defineTask("LOCATION_GEOFENCE", async ({ data: { eventType, region }
 	}
 	
 	if (eventType === GeofencingEventType.Enter && isRegionIn === -1) {
+	  playSound();
 	  regionsTask.push(region.identifier)
 	  await Notifications.scheduleNotificationAsync({
 		content: {
@@ -309,6 +311,20 @@ const HomeScreen = ({ navigation }) => {
 				</TouchableOpacity>
 			</View>
 		);
+	};
+	
+	const playSound = async () => {
+		const soundObject = new Audio.Sound();
+
+		await soundObject.loadAsync(require('./sounds/toque.mp3'));
+
+		await soundObject.playAsync();
+
+		setTimeout(async () => {
+			await soundObject.stopAsync();
+			
+			await soundObject.unloadAsync();
+		}, 13000);
 	};
 
 	return (
