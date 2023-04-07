@@ -16,7 +16,11 @@ import SettingsScreen from './Settings';
 import styles from './Styles';
 import colors from './Theme';
 
+let silentMode = true
+let pushNotifications = true
+
 const playSound = async () => {
+  if (!silentMode){
 		const soundObject = new Audio.Sound();
 
 		await soundObject.loadAsync(require('./sounds/toque.mp3'));
@@ -28,7 +32,20 @@ const playSound = async () => {
 			
 			await soundObject.unloadAsync();
 		}, 13000);
+  }
 	};
+
+const sendNotification = async (region) => {
+  if(pushNotifications){
+    await Notifications.scheduleNotificationAsync({
+		content: {
+			title: 'You reached ' + region.identifier,
+			body: 'You reached your destination'
+		},
+		trigger: { seconds: 1 },
+	});
+  }
+}
 
 Notifications.setNotificationHandler({
 	handleNotification: async () => ({
@@ -58,15 +75,12 @@ TaskManager.defineTask("LOCATION_GEOFENCE", async ({ data: { eventType, region }
 	}
 	
 	if (eventType === GeofencingEventType.Enter && isRegionIn === -1) {
-	  playSound();
+    
+    playSound();
+    
 	  regionsTask.push(region.identifier)
-	  await Notifications.scheduleNotificationAsync({
-		content: {
-			title: 'You reached ' + region.identifier,
-			body: 'You reached your destination'
-		},
-		trigger: { seconds: 1 },
-	});
+    sendNotification(region)
+    
 	}
 });
 
@@ -145,20 +159,19 @@ const HomeScreen = ({ navigation }) => {
 	let regionsEnabled = [];
 
 	const route = useRoute();
-    const newAlarm = route.params?.newAlarm;
-    const buttonStates = route.params;
+  const newAlarm = route.params?.newAlarm;
+  const buttonStates = route.params;
 
-	let pushNotifications;
 	let darkMode;
-	let silentMode;
 
 	useEffect(() => {
-        if (route.params && route.params.buttonStates) {
+      if (route.params && route.params.buttonStates) {
 			const states = Object.values(route.params);
 			
 			pushNotifications = states[0].pushNotifications;
 			darkMode = states[0].darkMode;
 			silentMode = states[0].silentMode;
+      console.log(route.params.buttonStates)
         }
     }, [route.params]);
 
@@ -302,7 +315,7 @@ const HomeScreen = ({ navigation }) => {
 		setCurrId(currId + 1);
 
 		return currId + 1;
-	};
+	}
 
 	const historicalToFavorite = ({ item }) => {
 		const index = historical.indexOf(item);
