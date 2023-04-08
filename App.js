@@ -14,13 +14,9 @@ import * as TaskManager from 'expo-task-manager';
 import NewAlarmScreen from './NewAlarm';
 import SettingsScreen from './Settings';
 import styles from './Styles';
-import colors from './Theme';
-
-let silentMode = true
-let pushNotifications = true
+import { darkTheme, lightTheme}  from './Theme';
 
 const playSound = async () => {
-  if (!silentMode){
 		const soundObject = new Audio.Sound();
 
 		await soundObject.loadAsync(require('./sounds/toque.mp3'));
@@ -32,20 +28,7 @@ const playSound = async () => {
 			
 			await soundObject.unloadAsync();
 		}, 13000);
-  }
 	};
-
-const sendNotification = async (region) => {
-  if(pushNotifications){
-    await Notifications.scheduleNotificationAsync({
-		content: {
-			title: 'You reached ' + region.identifier,
-			body: 'You reached your destination'
-		},
-		trigger: { seconds: 1 },
-	});
-  }
-}
 
 Notifications.setNotificationHandler({
 	handleNotification: async () => ({
@@ -75,12 +58,15 @@ TaskManager.defineTask("LOCATION_GEOFENCE", async ({ data: { eventType, region }
 	}
 	
 	if (eventType === GeofencingEventType.Enter && isRegionIn === -1) {
-    
-    playSound();
-    
+	  playSound();
 	  regionsTask.push(region.identifier)
-    sendNotification(region)
-    
+	  await Notifications.scheduleNotificationAsync({
+		content: {
+			title: 'You reached ' + region.identifier,
+			body: 'You reached your destination'
+		},
+		trigger: { seconds: 1 },
+	});
 	}
 });
 
@@ -159,19 +145,20 @@ const HomeScreen = ({ navigation }) => {
 	let regionsEnabled = [];
 
 	const route = useRoute();
-  const newAlarm = route.params?.newAlarm;
-  const buttonStates = route.params;
+    const newAlarm = route.params?.newAlarm;
+    const buttonStates = route.params;
 
+	let pushNotifications;
 	let darkMode;
+	let silentMode;
 
 	useEffect(() => {
-      if (route.params && route.params.buttonStates) {
+        if (route.params && route.params.buttonStates) {
 			const states = Object.values(route.params);
 			
 			pushNotifications = states[0].pushNotifications;
 			darkMode = states[0].darkMode;
 			silentMode = states[0].silentMode;
-      console.log(route.params.buttonStates)
         }
     }, [route.params]);
 
@@ -315,7 +302,7 @@ const HomeScreen = ({ navigation }) => {
 		setCurrId(currId + 1);
 
 		return currId + 1;
-	}
+	};
 
 	const historicalToFavorite = ({ item }) => {
 		const index = historical.indexOf(item);
@@ -407,14 +394,26 @@ const HomeScreen = ({ navigation }) => {
 const Stack = createStackNavigator();
 
 function App() {
+  const [isDarkModeOn, setIsDarkModeOn] = React.useState(true);
+
+  if(isDarkModeOn){
+    colors = darkTheme
+  } else {
+    colors = lightTheme
+  }
+
 	return (
-		<View style={{ flex: 1, backgroundColor: colors.primaryBackground, paddingTop: StatusBar.currentHeight+20 }}>
-			<StatusBar barStyle={colors.statusBar} />
+		<View style={{ flex: 1, backgroundColor: isDarkModeOn ? darkTheme.primaryBackground : lightTheme.primaryBackground, paddingTop: StatusBar.currentHeight+20 }}>
+  <StatusBar barStyle={isDarkModeOn ? darkTheme.statusBar : lightTheme.statusBar} />
 			<NavigationContainer>
 				<Stack.Navigator screenOptions={{ headerShown: false }}>
 				<Stack.Screen name="Alarms" component={HomeScreen}/>
-				<Stack.Screen name="NewAlarm" component={NewAlarmScreen}/>
-				<Stack.Screen name="Settings" component={SettingsScreen}/>
+        <Stack.Screen name="NewAlarm">
+  {(props) => <NewAlarmScreen {...props} theme={isDarkModeOn ? darkTheme : lightTheme} />}
+</Stack.Screen>
+				<Stack.Screen name="Settings">
+          {(props) => <SettingsScreen {...props} isDarkModeOn={isDarkModeOn} setIsDarkModeOn={setIsDarkModeOn} />}
+        </Stack.Screen>
 				</Stack.Navigator>
 			</NavigationContainer>
 		</View>

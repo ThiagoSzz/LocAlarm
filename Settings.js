@@ -1,15 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons'; 
 import ModalDropdown from 'react-native-modal-dropdown';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Audio } from 'expo-av';
 
 import styles from './Styles';
-import colors from './Theme';
+import {darkTheme, lightTheme} from './Theme';
 
-function SettingsScreen() {
+function SettingsScreen({isDarkModeOn, setIsDarkModeOn}) {
     const [showDropDown, setShowDropDown] = useState(false);
     const [selectedRingtone, setSelectedRingtone] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState('');
@@ -27,6 +26,7 @@ function SettingsScreen() {
             const states = Object.values(route.params);
             setButtonStates({ darkMode: states[0].darkMode, pushNotifications: states[0].pushNotifications, silentMode: states[0].silentMode });
         }
+
     }, [route.params]);
 
     const handlePushNotifications = () => {
@@ -39,10 +39,12 @@ function SettingsScreen() {
     
     const handleDarkMode = () => {
         setButtonStates({ ...buttonStates, darkMode: !buttonStates.darkMode });
+        setIsDarkModeOn(!buttonStates.darkMode)
+
     };
 
     const soundOptions = [
-        'Radar', 'Digital Ringtone', 
+        'Classic Phone', 'Digital Ringtone', 
         'Funky Ringtone' ,'Marimba', 
         'Retro Ringtone', 'Simple Ringtone', 
         'Smooth Ringtone', 'Synth Ringtone', 
@@ -55,19 +57,11 @@ function SettingsScreen() {
         "🇩🇪 DE"
     ];
 
-    const playSound = async () => {
-		const soundObject = new Audio.Sound();
-
-		await soundObject.loadAsync(require('./sounds/toque.mp3'));
-
-		await soundObject.playAsync();
-
-		setTimeout(async () => {
-			await soundObject.stopAsync();
-			
-			await soundObject.unloadAsync();
-		}, 13000);
-	};
+    if (isDarkModeOn){
+      colors = darkTheme
+    } else {
+      colors = lightTheme
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.secondaryBackground }}>
@@ -107,7 +101,7 @@ function SettingsScreen() {
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <ModalDropdown options={soundOptions} defaultValue={soundOptions[0]} textStyle={{ fontSize: 16, color: colors.secondaryTextAndIcons }} dropdownTextStyle={{ width: 100, fontSize: 11, textAlign: 'center', backgroundColor: colors.secondaryBackground }} onSelect={(index, value) => {setSelectedRingtone(value);}}>
                             </ModalDropdown>
-                            <TouchableOpacity style={{ marginLeft: 8 }} onPress={playSound}>
+                            <TouchableOpacity style={{ marginLeft: 8 }}>
                                 <Feather name="play-circle" size={20} color={colors.secondaryTextAndIcons} />
                             </TouchableOpacity>
                         </View>
