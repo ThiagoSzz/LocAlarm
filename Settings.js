@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons'; 
 import ModalDropdown from 'react-native-modal-dropdown';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Audio } from 'expo-av';
 
 import styles from './Styles';
 import {darkTheme, lightTheme} from './Theme';
