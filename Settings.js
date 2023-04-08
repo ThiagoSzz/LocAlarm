@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons'; 
 import ModalDropdown from 'react-native-modal-dropdown';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Audio } from 'expo-av';
 
 import styles from './Styles';
 import {darkTheme, lightTheme} from './Theme';
@@ -44,12 +45,26 @@ function SettingsScreen({isDarkModeOn, setIsDarkModeOn}) {
     };
 
     const soundOptions = [
-        'Classic Phone', 'Digital Ringtone', 
+        'Radar', 'Digital Ringtone', 
         'Funky Ringtone' ,'Marimba', 
         'Retro Ringtone', 'Simple Ringtone', 
         'Smooth Ringtone', 'Synth Ringtone', 
         'Upbeat Ringtone', 'Whistle'
     ];
+
+    const playSound = async () => {
+		const soundObject = new Audio.Sound();
+
+		await soundObject.loadAsync(require('./sounds/toque.mp3'));
+
+		await soundObject.playAsync();
+
+		setTimeout(async () => {
+			await soundObject.stopAsync();
+			
+			await soundObject.unloadAsync();
+		}, 13000);
+	};
 
     const languageOptions = [
         "🇧🇷 PT-BR", "🇺🇸 EN",
@@ -101,7 +116,7 @@ function SettingsScreen({isDarkModeOn, setIsDarkModeOn}) {
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <ModalDropdown options={soundOptions} defaultValue={soundOptions[0]} textStyle={{ fontSize: 16, color: colors.secondaryTextAndIcons }} dropdownTextStyle={{ width: 100, fontSize: 11, textAlign: 'center', backgroundColor: colors.secondaryBackground }} onSelect={(index, value) => {setSelectedRingtone(value);}}>
                             </ModalDropdown>
-                            <TouchableOpacity style={{ marginLeft: 8 }}>
+                            <TouchableOpacity style={{ marginLeft: 8 }} onPress={playSound}>
                                 <Feather name="play-circle" size={20} color={colors.secondaryTextAndIcons} />
                             </TouchableOpacity>
                         </View>
