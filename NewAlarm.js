@@ -41,7 +41,7 @@ const RadiusSelector = ({ activationRadius, onRadiusChange }) => {
       <TouchableOpacity onPress={minusButton}>
         <Text
           style={{
-            fontSize: 30,
+            fontSize: 20,
             color: colors.primaryTextAndIcons,
             marginHorizontal: 10,
           }}>
@@ -65,7 +65,7 @@ const RadiusSelector = ({ activationRadius, onRadiusChange }) => {
       <TouchableOpacity onPress={plusButton}>
         <Text
           style={{
-            fontSize: 30,
+            fontSize: 20,
             color: colors.primaryTextAndIcons,
             marginHorizontal: 10,
           }}>
